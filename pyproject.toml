@@ -46,7 +46,7 @@ include = ["opendota_mcp*"]
 exclude = ["tests*", "*.tests*"]
 
 [tool.setuptools.package-data]
-opendota_mcp = ["py.typed"]
+opendota_mcp = ["py.typed", "constants/*.json"]
 
 # Ruff configuration for linting and formatting
 [tool.ruff]

@@ -30,7 +30,7 @@ async def get_http_client() -> httpx.AsyncClient:
         http_client = httpx.AsyncClient(
             timeout=httpx.Timeout(
                 connect=10.0,
-                read=120.0,
+                read=20.0,
                 write=10.0,
                 pool=10.0
             ),
