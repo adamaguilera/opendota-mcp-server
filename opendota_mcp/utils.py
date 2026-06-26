@@ -26,6 +26,18 @@ async def get_account_id(player_name: str) -> str:
     Raises:
         ValueError: If player not found
     """
+    player_name = str(player_name).strip()
+
+    # An all-digit value is already an OpenDota account_id (32-bit Steam ID) — use it as-is.
+    # Callers that already know the account_id (e.g. the feedbot bridge) pass it straight through.
+    # Running a name /search on a number is both wrong (it can match an unrelated persona that
+    # merely contains those digits) and slow (an extra, frequently-timing-out round-trip before
+    # every real query), which previously surfaced as empty "no data" replies on valid accounts.
+    # isascii() guards out non-ASCII "digits" (e.g. "²", "٢") that isdigit()/isdecimal() accept but
+    # that aren't valid ids — those fall through to /search like any other unrecognized name.
+    if player_name.isascii() and player_name.isdigit():
+        return player_name
+
     player_name_lower = player_name.lower()
 
     # Check static cache first

@@ -119,7 +119,9 @@ def register_player_tools(mcp: FastMCP):
         included_account_id: Optional[Union[str, List[str]]] = None,
         excluded_account_id: Optional[Union[str, List[str]]] = None,
         with_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
-        against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None
+        against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
+        lobby_type: Optional[int] = None,
+        party_size: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Get simple win/loss counts for a player with optional filters.
@@ -156,18 +158,26 @@ def register_player_tools(mcp: FastMCP):
             against_hero_id: Require these heroes on enemy team. Accepts:
                 - Integer/String: Single hero ID or name
                 - List: Multiple hero IDs or names
-        
+            lobby_type: Filter by lobby. Common values: 7 (Ranked matchmaking),
+                0 (Normal/unranked). Use to compare ranked vs unranked performance.
+            party_size: Filter by party size. 1 = solo queue; 2-5 = queued in a party
+                of exactly that size (there is no single "any party" value). For solo, pass
+                party_size=1; for "party", compare against the overall record (no party_size
+                filter), which is solo + all party sizes combined.
+
         Returns:
             Dictionary with exactly two fields:
             - win (int): Number of wins matching the filters
             - lose (int): Number of losses matching the filters
-            
+
         Common queries:
             - Overall record: get_player_win_loss("kürlo")
             - Hero-specific: get_player_win_loss("kürlo", hero_id="Rubick")
             - Lane-specific: get_player_win_loss("kürlo", lane_role="mid")
             - With teammate: get_player_win_loss("kürlo", included_account_id="hotpocalypse")
             - Vs counter: get_player_win_loss("kürlo", hero_id="Rubick", against_hero_id="Pudge")
+            - Solo only: get_player_win_loss("kürlo", party_size=1)
+            - Ranked only: get_player_win_loss("kürlo", lobby_type=7)
         
         Example:
             get_player_win_loss("kürlo", lane_role="mid", hero_id="Rubick")
@@ -193,10 +203,12 @@ def register_player_tools(mcp: FastMCP):
                     'included_account_id': included_account_id,
                     'excluded_account_id': excluded_account_id,
                     'with_hero_id': with_hero_id,
-                    'against_hero_id': against_hero_id
+                    'against_hero_id': against_hero_id,
+                    'lobby_type': lobby_type,
+                    'party_size': party_size
                 }.items() if v is not None
             }
-            
+
             wl_data = await fetch_api(f"/players/{account_id}/wl", params)
             total_games = int(wl_data['win']) + int(wl_data['lose'])
             wl_data["win_rate"] = f"{int(wl_data['win'])/(total_games)*100:.2f}" if total_games > 0 else "0.0"
@@ -220,7 +232,9 @@ def register_player_tools(mcp: FastMCP):
         excluded_account_id: Optional[Union[str, List[str]]] = None,
         with_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
-        having: Optional[int] = None
+        having: Optional[int] = None,
+        lobby_type: Optional[int] = None,
+        party_size: Optional[int] = None
     ) -> Union[List[Dict[str, Any]], Dict[str, str]]:
         """
         Get detailed statistics for all heroes a player has played, with performance metrics.
@@ -296,10 +310,12 @@ def register_player_tools(mcp: FastMCP):
                     'excluded_account_id': excluded_account_id,
                     'with_hero_id': with_hero_id,
                     'against_hero_id': against_hero_id,
-                    'having': having
+                    'having': having,
+                    'lobby_type': lobby_type,
+                    'party_size': party_size
                 }.items() if v is not None
             }
-            
+
             result = await fetch_api(f"/players/{account_id}/heroes", params)
             
             structured_result = []
@@ -449,6 +465,8 @@ def register_player_tools(mcp: FastMCP):
         with_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         having: Optional[int] = None,
+        lobby_type: Optional[int] = None,
+        party_size: Optional[int] = None,
     ) -> Union[List[Dict[str, Any]], Dict[str, str]]:
         """
         Get aggregated performance statistics across ALL tracked metrics (GPM, KDA, damage, etc.).
@@ -529,7 +547,9 @@ def register_player_tools(mcp: FastMCP):
                     'excluded_account_id': excluded_account_id,
                     'with_hero_id': with_hero_id,
                     'against_hero_id': against_hero_id,
-                    'having': having
+                    'having': having,
+                    'lobby_type': lobby_type,
+                    'party_size': party_size
                 }.items() if v is not None
             }
             result = await fetch_api(f"/players/{account_id}/totals", params)
@@ -565,6 +585,8 @@ def register_player_tools(mcp: FastMCP):
         with_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         having: Optional[int] = None,
+        lobby_type: Optional[int] = None,
+        party_size: Optional[int] = None,
     ) -> Union[List[Dict[str, Any]], Dict[str, str]]:
         """
         Get the DISTRIBUTION of a specific statistic across matches (performance consistency analysis).
@@ -658,10 +680,12 @@ def register_player_tools(mcp: FastMCP):
                     'excluded_account_id': excluded_account_id,
                     'with_hero_id': with_hero_id,
                     'against_hero_id': against_hero_id,
-                    'having': having
+                    'having': having,
+                    'lobby_type': lobby_type,
+                    'party_size': party_size
                 }.items() if v is not None
             }
-            
+
             result = await fetch_api(f"/players/{account_id}/histograms/{field}", params)
 
             structured_result = []
