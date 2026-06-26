@@ -883,8 +883,9 @@ async def build_teamfight_list(teamfights: List[Dict[str, Any]], players: List[D
                 "gold_delta": gold_delta,
                 "xp_delta": player_info.get("xp_delta", 0),
                 "buybacks": player_info.get("buybacks", 0),
-                "ability_uses": player_info.get("ability_uses", {}),
-                "item_uses": player_info.get("item_uses", {}),
+                # ability_uses / item_uses omitted on purpose: a per-fight, per-player dict of every
+                # spell/item cast is the single bulkiest part of a parsed match and isn't used for
+                # analysis — keeping it ballooned memory (OOM on small hosts) and token cost.
             }
             tf_players.append(player_dict)
 

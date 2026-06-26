@@ -318,6 +318,11 @@ def register_match_tools(mcp: FastMCP):
                 player_data = await build_player_list(sections.get('players', []), benchmark_fields)
 
                 # Return summarized version (same as get_parsed_match_details)
+                # Heavy, rarely-analyzed sections are dropped to keep the payload small enough to
+                # cross the MCP stdio boundary and fit in memory on small hosts (it previously
+                # OOM-killed the client): per-minute gold/xp timings PER HERO (the team-level
+                # gold_advantage/xp_advantage arrays below are kept for momentum reads) and the
+                # full chat log.
                 return {
                     "parsed": True,
                     "metadata": sections.get('metadata', {}),
@@ -326,7 +331,6 @@ def register_match_tools(mcp: FastMCP):
                         "teamfights": formatted_teamfights
                     },
                     "objectives": sections.get('objectives', []),
-                    "chat": sections.get('chat', []),
                     "picks_bans": sections.get('picks_bans', []),
                     "players_summary": {
                         "count": len(player_data['players']),
@@ -334,8 +338,6 @@ def register_match_tools(mcp: FastMCP):
                     },
                     "gold_advantage": sections.get('radiant_gold_adv', []),
                     "xp_advantage": sections.get('radiant_xp_adv', []),
-                    "gold_timings_per_hero": player_data['gold_timings_per_hero'],
-                    "xp_timings_per_hero": player_data['xp_timings_per_hero']
                 }
             else:
                 # Match is NOT parsed - return full data (it's small enough)
