@@ -349,7 +349,7 @@ def register_player_tools(mcp: FastMCP):
         excluded_account_id: Optional[Union[str, List[str]]] = None,
         with_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
         against_hero_id: Optional[Union[int, str, List[Union[int, str]]]] = None,
-        peers_count: Optional[int] = 5
+        peers_count: Optional[int] = 20
     ) -> Union[List[Dict[str, Any]], Dict[str, str]]:
         """
         Get players who frequently play WITH the specified player (teammates, not opponents).
@@ -377,7 +377,7 @@ def register_player_tools(mcp: FastMCP):
             excluded_account_id: Exclude specific players from results (accepts names or IDs)
             with_hero_id: Filter to games with these heroes on player's team
             against_hero_id: Filter to games against these enemy heroes
-            peers_count: Number of teammates to return (default 5, increase for more results)
+            peers_count: Number of teammates to return (default 20; increase if squad members are missing)
         
         Returns:
             List of teammate statistics (sorted by games together, descending), each containing:
