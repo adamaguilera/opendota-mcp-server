@@ -14,6 +14,11 @@ OPENDOTA_BASE_URL = "https://api.opendota.com/api"
 # Optional API key (for higher rate limits)
 OPENDOTA_API_KEY: Optional[str] = os.getenv("OPENDOTA_API_KEY") or None
 
+# STRATZ API (role/rank grounding the OpenDota API can't provide: true position 1-5 and
+# rank-bracket-segmented hero benchmarks). When unset, the STRATZ tools don't register.
+STRATZ_API_TOKEN: Optional[str] = os.getenv("STRATZ_API_TOKEN") or None
+STRATZ_GRAPHQL_URL: str = os.getenv("STRATZ_GRAPHQL_URL") or "https://api.stratz.com/graphql"
+
 # Default: 50 for anonymous
 RATE_LIMIT_RPM = 50
 

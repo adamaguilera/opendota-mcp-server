@@ -17,6 +17,10 @@ class Player:
     win_count: Optional[int] = None
     lose_count: Optional[int] = None
     fav_heroes: Optional[List[Dict[str, Any]]] = None
+    rank: Optional[str] = None              # formatted medal, e.g. "Divine 3" (None if private/unranked)
+    rank_tier: Optional[int] = None         # raw OpenDota tier; bracket index = rank_tier // 10
+    leaderboard_rank: Optional[int] = None  # Immortal ladder position, if any
+    mmr_estimate: Optional[int] = None      # OpenDota's estimated MMR (rough, not in-client MMR)
 
     @property
     def win_rate(self) -> Optional[float]:

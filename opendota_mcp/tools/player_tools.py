@@ -9,6 +9,7 @@ from datetime import datetime
 from fastmcp import FastMCP
 from ..classes import Player
 from ..client import fetch_api
+from ..config import format_rank_tier
 from ..utils import get_account_id
 from ..resolvers import resolve_hero, resolve_hero_list, resolve_lane, resolve_account_ids, resolve_stat_field, get_hero_by_id_logic
 
@@ -50,6 +51,10 @@ def register_player_tools(mcp: FastMCP):
             - win_count (int): Total wins
             - lose_count (int): Total losses
             - win_rate (float): Overall win percentage
+            - rank (str): Current medal, e.g. "Divine 3" (absent if the profile is private)
+            - rank_tier (int): Raw rank tier (bracket index = rank_tier // 10)
+            - leaderboard_rank (int): Immortal ladder rank, if applicable
+            - mmr_estimate (int): OpenDota's estimated MMR (rough, not in-client MMR)
             - fav_heroes (list): Top 10 heroes, each with:
                 - hero_name (str): Hero's display name
                 - games_played (int): Games played with this hero
@@ -77,6 +82,16 @@ def register_player_tools(mcp: FastMCP):
                 player.personaname = profile.get('personaname')
                 player.avatarfull = profile.get('avatarfull')
                 player.profileurl = profile.get('profileurl')
+
+            # Rank/MMR live at the TOP LEVEL of /players/{id}, not inside 'profile'.
+            # Surfacing them lets the analyst ground stats against the player's bracket
+            # (e.g. "median GPM is below par for Divine"). All absent on private profiles.
+            rank_tier = profile_data.get('rank_tier')
+            player.rank = format_rank_tier(rank_tier)  # e.g. "Divine 3", or None
+            player.rank_tier = rank_tier
+            player.leaderboard_rank = profile_data.get('leaderboard_rank')
+            mmr = profile_data.get('mmr_estimate')  # OpenDota returns {"estimate": N}
+            player.mmr_estimate = mmr.get('estimate') if isinstance(mmr, dict) else mmr
 
             player.win_count = wl_data.get('win')
             player.lose_count = wl_data.get('lose')
